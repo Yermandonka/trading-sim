@@ -1,0 +1,14 @@
+[Unit]
+Description=Trading Sim - panel de paper-trading cuantitativo
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/yermandonka/Projects/trading-sim
+ExecStart=/home/yermandonka/Projects/trading-sim/.venv/bin/python -m uvicorn backend.app:app --host 127.0.0.1 --port 8777
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target

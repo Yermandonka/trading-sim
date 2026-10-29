@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Trading Sim · Panel</title>
+<link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+<div class="wrap">
+
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo">📈</div>
+      <div>
+        <h1>Trading Sim</h1>
+        <small>Simulador cuantitativo · puntos ficticios</small>
+      </div>
+    </div>
+    <div class="spacer"></div>
+    <div class="pill"><span class="dot" id="dotData"></span><span id="lastUpd">—</span></div>
+    <div class="pill"><span id="uniCount">—</span></div>
+    <div class="pill"><span class="dot" id="dotAi"></span><span id="aiState">IA off</span></div>
+    <div class="pill"><span class="dot" id="dotBot"></span><span id="botState">Bot parado</span></div>
+    <button class="toggle" id="toggleBot">Arrancar bot</button>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-main">
+      <div class="hero-lbl">Capital total</div>
+      <div class="hero-eq num" id="heroEq">—<small> pts</small></div>
+      <div class="hero-delta num" id="heroDelta"></div>
+      <div id="heroChip"></div>
+      <div class="hero-spark"><canvas id="heroSpark" height="54"></canvas></div>
+      <div class="mini-grid">
+        <div class="mini"><div class="k">Puntos libres</div><div class="v num" id="mCash">—</div></div>
+        <div class="mini"><div class="k">En posiciones</div><div class="v num" id="mInvested">—</div></div>
+        <div class="mini"><div class="k">Realizado</div><div class="v num" id="mRealized">—</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div><h2>Evolución del capital</h2><p class="sub">cómo cambia tu dinero ficticio con el tiempo</p></div>
+        <div class="ranges" id="eqRanges">
+          <span class="range" data-n="96">1 día</span>
+          <span class="range" data-n="672">1 sem</span>
+          <span class="range active" data-n="99999">Todo</span>
+        </div>
+      </div>
+      <div class="legend">
+        <span><i style="background:var(--green)"></i>Tu bot</span>
+        <span><i style="background:var(--s-amber);height:0;border-top:2px dashed var(--s-amber)"></i>Comprar y mantener (BTC)</span>
+        <span><i style="background:var(--accent2);height:0;border-top:2px dashed var(--accent2)"></i>Elegida (sigue a la mejor)</span>
+        <span id="followMode" class="follow-badge"></span>
+      </div>
+      <div class="legend" id="runsLegend" title="Otras configuraciones operando en vivo en paralelo, con los mismos datos y el mismo instante"></div>
+      <canvas id="equityChart" height="300"></canvas>
+    </div>
+  </section>
+
+  <!-- RESULTADOS + POSICIONES -->
+  <div class="grid2">
+    <div class="card">
+      <h2>📊 Resultados</h2>
+      <p class="sub">el rendimiento real de la estrategia hasta ahora</p>
+      <div class="stats" id="statsBox"></div>
+    </div>
+    <div class="card">
+      <h2>Posiciones abiertas <span class="mut num" id="posCount" style="font-weight:400"></span></h2>
+      <p class="sub">operaciones en marcha ahora mismo</p>
+      <div id="positions"></div>
+    </div>
+  </div>
+
+  <!-- DETALLE ACTIVO + WATCHLIST -->
+  <div class="grid2" style="margin-top:18px">
+    <div class="card">
+      <div class="detail-head">
+        <div><span class="sym" id="dSym">—</span> <span class="px num" id="dPx"></span></div>
+        <div class="decision wait" id="dDecision">—</div>
+      </div>
+      <div class="legend">
+        <span><i style="background:var(--s-blue)"></i>Precio</span>
+        <span><i style="background:var(--s-amber)"></i>Media rápida (EMA12)</span>
+        <span><i style="background:var(--s-violet)"></i>Media lenta (EMA50)</span>
+        <span><i style="background:rgba(57,135,229,.35)"></i>Bandas Bollinger</span>
+      </div>
+      <canvas id="priceChart" height="230"></canvas>
+      <div class="ai-badge" id="dAi" style="display:none"></div>
+      <div class="parts" id="dParts"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div><h2>Mercado</h2><p class="sub">ordenado por fuerza de señal · pulsa para ver el gráfico</p></div>
+        <span class="btn sm" id="wlSort">Señal ⇅</span>
+      </div>
+      <div class="wl" id="watchlist"></div>
+    </div>
+  </div>
+
+  <h2 class="sec">🧾 Historial de operaciones</h2>
+  <div class="card"><div id="trades"></div></div>
+
+  <div class="card settings">
+    <details>
+      <summary>⚙️ Ajustes y herramientas</summary>
+      <div class="fields" style="margin-top:16px">
+        <div class="field"><label>Nº de activos a vigilar</label><input id="cfgUniverse" type="number" step="5" min="5" max="150"></div>
+        <div class="field"><label>Selección de activos</label>
+          <select id="cfgAuto"><option value="true">Automática (más líquidos)</option><option value="false">Lista fija</option></select></div>
+        <div class="field"><label>Máx. posiciones a la vez</label><input id="cfgMaxPos" type="number" step="1" min="1" max="60"></div>
+        <div class="field"><label>Umbral para operar (0–1)</label><input id="cfgThreshold" type="number" step="0.05" min="0" max="1"></div>
+        <div class="field"><label>Riesgo por operación (% del capital que pierdes si salta el stop)</label><input id="cfgRisk" type="number" step="0.5" min="0.25" max="100"></div>
+        <div class="field"><label>Apalancamiento (1 = sin apalancar; a 5x o más tu stop puede quedar detrás de la liquidación)</label><input id="cfgLev" type="number" step="1" min="1" max="10"></div>
+        <div class="field"><label>Intervalo de vela</label>
+          <select id="cfgInterval"><option>5m</option><option>15m</option><option>30m</option><option>1h</option><option>4h</option></select></div>
+        <div class="field"><label>Frecuencia del bot (seg)</label><input id="cfgLoop" type="number" step="10" min="10"></div>
+        <div class="field"><label>Permitir ventas en corto</label>
+          <select id="cfgShort"><option value="true">Sí</option><option value="false">No</option></select></div>
+      </div>
+      <div class="fields" style="margin-top:14px;border-top:1px solid var(--line);padding-top:16px">
+        <div class="field"><label>🤖 Filtro de IA (veto de entradas)</label>
+          <select id="cfgAi"><option value="false">Desactivado</option><option value="true">Activado</option></select></div>
+        <div class="field" style="grid-column:span 2"><label>Clave de Google AI Studio (gratis en aistudio.google.com/app/apikey)</label>
+          <input id="cfgAiKey" type="password" placeholder="pega tu clave aquí para activar la IA">
+          <div id="aiKeyHint" class="mut" style="font-size:11.5px;margin-top:5px"></div></div>
+      </div>
+      <div class="actions">
+        <button class="btn" id="saveCfg">💾 Guardar ajustes</button>
+        <button class="btn" id="btnBacktest">🧪 Backtest del activo seleccionado</button>
+        <button class="btn" id="resetBtn" style="margin-left:auto">♻️ Reiniciar simulación</button>
+      </div>
+      <div id="backtestOut" class="empty" style="text-align:left"></div>
+    </details>
+  </div>
+
+</div>
+<div class="tip" id="tip"></div>
+<script src="/static/app.js"></script>
+</body>
+</html>
